@@ -1,0 +1,76 @@
+doctype html5
+html
+    head
+        title= title
+        meta(name="viewport" content="width=device-width, initial-scale=1")
+
+        script.
+            var nsp=#{ownerId};
+
+        script(src="/i18n/web-app/en.js")
+        script(src="/i18n/web-app/fr.js")
+
+        link(rel="stylesheet" href="/bower_components/angular-material-data-table/dist/md-data-table.min.css")
+        link(rel="stylesheet" href="/bower_components/angular-material/angular-material.min.css")
+        link(rel='stylesheet' href='/css/ah-tm.dashboard.css')
+        link(rel='stylesheet' href='/css/ah-tm.tags.css')
+        link(rel='stylesheet' href='/css/ah-tm.cards.css')
+        link(rel='stylesheet' href='/css/ah-tm.md-table.css')
+        link(rel='stylesheet' href='/css/ah-tm.md-list.css')
+        link(rel='stylesheet' href='/css/ah-tm.label.css')
+        
+        script(src="/bower_components/jquery/dist/jquery.min.js")
+
+        script(src="/bower_components/angular/angular.min.js")  
+
+        script(src="/bower_components/angular-aria/angular-aria.js")
+        script(src="/bower_components/angular-route/angular-route.min.js")
+        script(src="/bower_components/angular-sanitize/angular-sanitize.min.js")
+        
+        script(src="/bower_components/angular-animate/angular-animate.min.js")
+        script(src="/bower_components/angular-material/angular-material.js")
+        script(src="/bower_components/angular-messages/angular-messages.js")
+        script(src="/bower_components/angular-material-data-table/dist/md-data-table.min.js")
+        script(src="/bower_components/angular-translate/angular-translate.min.js")
+        script(src="/bower_components/angular-bootstrap/ui-bootstrap.min.js")
+
+        script(src="/bower_components/angular-socket-io/socket.min.js")
+        script(src="/socket.io/socket.io.js")
+        
+        script(src="/web-app/app.js")
+        script(src="/web-app/routes.js")
+        script(src="/web-app/check/controller.js")
+        script(src="/web-app/check/service.js")
+        script(src="/web-app/modals/controller.js")
+        script(src="/web-app/modals/service.js")
+    
+    body(ng-app="att" layout-fill style="max-height: 100%").icons-docs
+
+        header(ng-controller="HeaderCtrl")
+            input(type='hidden' id='vpcUrl' value=vpcUrl ng-model="vpcUrl")
+            input(type='hidden' id='ownerId' value=ownerId ng-model="ownerId")
+            input(type='hidden' id='accessToken' value=accessToken ng-model="accessToken")
+            div
+                md-toolbar(layout='row')
+
+                    h1.logo.md-toolbar-tools
+                        img(src="/images/logo_nav.png" alt="Aerohive" style="max-height: 40px;")
+                    span(flex)                 
+                    md-menu
+                        md-button(aria-label="menu" ng-click="openMenu($mdOpenMenu, $event)" style="min-width: 20px;")
+                            md-tooltip(md-direction="bottom" md-visible="tooltipVisible") {{"button.menu" | translate}}
+                            md-icon(class="material-icons" aria-label="menu" md-svg-src="/images/icons/ic_more_vert_24px.svg")
+                        md-menu-content
+                            md-menu-item
+                                md-button(ng-controller="ModalCtrl" ng-click="about()" aria-label="info")
+                                    md-icon.material-icons(md-menu-align-target md-svg-src="/images/icons/ic_info_24px.svg")
+                                    span(translate="layout.accountDetails")
+                            md-menu-item
+                                md-button(href="/logout/" aria-label="logout")
+                                    md-icon(md-menu-align-target md-svg-src="/images/icons/ic_exit_to_app_24px.svg")
+                                    span(translate="layout.logout")
+
+
+
+        
+        ng-view(layout-fill layout="column")

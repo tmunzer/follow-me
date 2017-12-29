@@ -13,7 +13,7 @@ var http = require('http');
 
 var http = require('http');
 
-var httpPort = normalizePort(process.env.PORT || '3000');
+var httpPort = normalizePort(process.env.PORT || '3080');
 var httpServer = http.createServer(app);
 
 httpServer.listen(httpPort);
@@ -21,11 +21,27 @@ httpServer.on('error', onError);
 httpServer.on('listening', onListening);
 
 
+//===============HTTPS SERVER=================
+
+var https = require('https');
+var fs = require('fs');
+
+var https_options = {
+  key: fs.readFileSync('./../cert/server.key'),
+  cert: fs.readFileSync('./../cert/server.pem')
+};
+
+var httpsPort = normalizePort(process.env.PORT || '3443');
+var httpsServer = https.createServer(https_options, app);
+
+httpsServer.listen(httpsPort);
+httpsServer.on('error', onError);
+httpsServer.on('listening', onListening);
 
 /**
  * Create socket.io
  */
-global.io = require('socket.io')(httpServer);
+global.io = require('socket.io')(httpsServer);
 var sharedsession = require("express-socket.io-session");
 io.use(sharedsession(session, {
     autoSave:true
@@ -83,7 +99,7 @@ function onError(error) {
  */
 
 function onListening() {
-  var addr = httpServer.address();
+  var addr = httpsServer.address();
   var bind = typeof addr === 'string'
     ? 'pipe ' + addr
     : 'port ' + addr.port;
