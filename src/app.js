@@ -55,7 +55,7 @@ var oauth = require('./routes/oauth');
 app.use('/', routes);
 app.use('/web-app/', webapp);
 app.use('/api/', api);
-app.use('/oauth/', oauth);
+app.use('/admin/oauth/', oauth);
 
 
 // catch 404 and forward to error handler
@@ -71,6 +71,7 @@ app.use(function (req, res, next) {
 // will print stacktrace
 if (app.get('env') === 'development') {
   app.use(function (err, req, res, next) {
+    console.log(err);
     res.status(err.status || 500);
     res.render('error', {
       message: err.message,

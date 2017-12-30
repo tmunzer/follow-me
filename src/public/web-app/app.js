@@ -1,35 +1,24 @@
-angular.module("Check", []);
+angular.module("Follow", []);
 angular.module("Modals", []);
-var att = angular.module("att", [
+var follow = angular.module("follow", [
     "ngRoute",
     'ngSanitize',
     'ngMaterial',
     'ngMessages',
     'md.data.table',
-    'Check',
-    'Modals',
-    'btford.socket-io',
     'ui.bootstrap',
-    'pascalprecht.translate'
+    'pascalprecht.translate',
+    'Follow',
+    'Modals'
 ]);
 
-att
-    .factory('socketio', function (socketFactory) {
-        var socket = io.connect('/' + nsp, {
-            'sync disconnect on unload': true
-        });
-        var factory = socketFactory({
-            ioSocket: socket
-        });
-        return factory
-        //return socketFactory();
-    })
+follow
     .config(function ($mdThemingProvider) {
         $mdThemingProvider.theme('default')
-            .primaryPalette("blue", {
-                'default': '600'
+            .primaryPalette("grey", {
+                'default': '900'
             })
-            .accentPalette('green', {
+            .accentPalette('blue', {
                 'default': '400' // by default use shade 400 from the pink palette for primary intentions
             });
     })
@@ -52,22 +41,21 @@ att
         $translateProvider.useMissingTranslationHandlerLog();
         $translateProvider
             .translations('en', en)
-            .registerAvailableLanguageKeys(['en'], {
+            .translations('fr', fr)
+            .registerAvailableLanguageKeys(['en', 'fr'], {
+                'en_*': 'en',
+                'fr_*': 'fr',
                 '*': 'en'
             })
             .determinePreferredLanguage()
             .fallbackLanguage('en')
-            .usePostCompiling(true)
-            .useSanitizeValueStrategy("escapeParameters");
+            .useSanitizeValueStrategy('sanitize');
 
-    }
-    ).run(['$anchorScroll', function ($anchorScroll) {
-        $anchorScroll.yOffset = 150;   // always scroll by 50 extra pixels
-    }]);
+    });
 
 
 
-att.controller("HeaderCtrl", function ($scope, $rootScope, $location, $mdDialog) {
+follow.controller("HeaderCtrl", function ($scope, $rootScope, $location, $mdDialog) {
     $rootScope.xapi = {
         vpcUrl: angular.element("#vpcUrl").val(),
         ownerId: angular.element("#ownerId").val(),
@@ -92,18 +80,6 @@ att.controller("HeaderCtrl", function ($scope, $rootScope, $location, $mdDialog)
     $scope.translate = function (langKey) {
         $translate.use(langKey);
     }
-    $scope.appDetails = {};
-
-    $scope.nav = {};
-    $scope.nav.isActive = function (path) {
-        if (path === $location.path().toString().split("/")[1]) return true;
-        else return false;
-    };
-    $scope.subnav = {};
-    $scope.subnav.isActive = function (path) {
-        if (path === $location.path().toString().split("/")[2]) return true;
-        else return false;
-    };
 
 
 });

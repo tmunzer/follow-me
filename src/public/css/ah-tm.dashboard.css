@@ -7,7 +7,7 @@ body {
 
 
 button.blue-button {
-    background-color: #0092D1;
+    background-color: #222;
     color: #FFF;
     border: medium none;
     padding: 1em;
@@ -150,7 +150,7 @@ li.location {
     font-size: 20px;
     color: #1b1464;
     height: 60px;
-    float: left;
+    /*float: left;*/
     font-weight: bold;
 }
 

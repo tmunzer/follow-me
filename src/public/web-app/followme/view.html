@@ -1,0 +1,92 @@
+<md-content layout="column" class="custom-scroll" flex>
+
+
+    <section layout="row">
+        <md-sidenav class="md-sidenav-left" md-component-id="left" md-is-locked-open="$mdMedia('gt-md')" md-whiteframe="1" style="max-width: 200px; background-color: #212121">
+            <md-toolbar>
+                <h1 class="md-toolbar-tools">Filters</h1>
+            </md-toolbar>
+            <md-content layout-padding layout="column" style="padding: 0;">
+                <md-toolbar style="min-height: 50px">
+                    <div class="md-toolbar-tools" style="height: 50px">
+                        <h2 class="md-title">Locations</h2>
+                        <span flex></span>
+                    </div>
+                </md-toolbar>
+                <md-toolbar style="min-height: 50px">
+                    <div class="md-toolbar-tools" style="height: 50px">
+                        <h2 class="md-title">SSID</h2>
+                        <span flex></span>
+                    </div>
+                </md-toolbar>
+                <md-toolbar style="min-height: 50px">
+                    <div class="md-toolbar-tools" style="height: 50px">
+                        <h2 class="md-title">Connection Type</h2>
+                        <span flex></span>
+                    </div>
+                </md-toolbar>
+                <md-toolbar style="min-height: 50px">
+                    <div class="md-toolbar-tools" style="height: 50px">
+                        <h2 class="md-title">OS</h2>
+                        <span flex></span>
+                    </div>
+                </md-toolbar>
+            </md-content>
+        </md-sidenav>
+
+
+        <md-content flex layout="column">
+            <article md-whiteframe="2">
+                <span> From </span>
+                <span> To </span>
+
+            </article>
+
+            <article md-whiteframe="2">
+                <md-content flex layout="column">
+                    <md-input-container md-no-float class="md-block" style="margin: 10px 10px 0 10px;padding: 0;">
+                        <input type="text" ng-model="query.filter" ng-model-options="query.filterOptions" placeholder="Filter (MAC Address, IP Address, Hostname)"
+                            aria-invalid="false">
+                    </md-input-container>
+                </md-content>
+                <!-- exact table from live demo -->
+                <md-table-container>
+                    <table md-table ng-model="clients" md-progress="requestInit">
+                        <thead md-head md-order="query.order">
+                            <tr md-row>
+                                <th md-column>
+                                    <span>Connection Type</span>
+                                </th>
+                                <th md-column md-order-by="clientMac">
+                                    <span>MAC Address</span>
+                                </th>
+                                <th md-column md-order-by="hostName">
+                                    <span>Hostname</span>
+                                </th>
+                                <th md-column>IP Address(es)</th>
+                                <th md-column># of Sessions</th>
+                                <th md-column md-order-by="usage">
+                                    <span>Usage</span>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody md-body>
+                            <tr md-row md-select="client" md-select-id="clientId" md-auto-select ng-repeat="client in clients | orderBy: query.order | limitTo: query.limit: (query.page - 1) * query.limit">
+                                <td md-cell>{{connectionType(client)}}</td>
+                                <td md-cell>{{client.clientMac}}</td>
+                                <td md-cell>{{client.hostName}}</td>
+                                <td md-cell>{{client.ip}}</td>
+                                <td md-cell>{{countSessions(client)}}</td>
+                                <td md-cell>{{client.usage }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </md-table-container>
+
+                <md-table-pagination md-limit="query.limit" md-limit-options="[5, 10, 15]" md-page="query.page" md-total="{{clients.length}}"
+                    md-on-paginate="getDesserts" md-page-select></md-table-pagination>
+            </article>
+        </md-content>
+    </section>
+
+</md-content>

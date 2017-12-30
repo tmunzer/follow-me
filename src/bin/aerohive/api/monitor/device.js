@@ -10,10 +10,19 @@ var api = require("./../req");
  * @param {String} devAccount.clientID - Aerohive Developper Account ClientID
  * @param {String} devAccount.clientSecret - Aerohive Developper Account secret
  * @param {String} devAccount.redirectUrl - Aerohive Developper Account redirectUrl
+ * @param {Array} qs - array of query string options. 
+ * @param {Object} qs[]
+ * @param {String} qs[].key - name of the qs parameter
+ * @param {String} qs[].value - value of the qs parameter
  *  */
-module.exports.devices = function (xapi, devAccount, callback) {
-
-    var path = '/xapi/v1/monitor/devices?ownerId=' + xapi.ownerId;
+module.exports.devices = function (xapi, devAccount, qs, callback) {
+    let query = "";
+    if (qs) {
+        qs.forEach(function(param){
+            query += "&" + param.key + "=" + param.value;
+        })
+    }
+    var path = '/xapi/v1/monitor/devices?ownerId=' + xapi.ownerId + query;
 
     // send the API request
     api.GET(xapi, devAccount, path,  callback);
@@ -30,10 +39,20 @@ module.exports.devices = function (xapi, devAccount, callback) {
  * @param {String} devAccount.clientSecret - Aerohive Developper Account secret
  * @param {String} devAccount.redirectUrl - Aerohive Developper Account redirectUrl
  * @param {String} deviceId - The Id of the desired device
+ * @param {Array} qs - array of query string options. 
+ * @param {Object} qs[]
+ * @param {String} qs[].key - name of the qs parameter
+ * @param {String} qs[].value - value of the qs parameter
  *  */
-module.exports.device = function (xapi, devAccount, deviceId, callback) {
+module.exports.device = function (xapi, devAccount, deviceId, qs, callback) {
 
-    var path = '/xapi/v1/monitor/devices/' + deviceId + '?ownerId=' + xapi.ownerId;
+    let query = "";
+    if (qs) {
+        qs.forEach(function(param){
+            query += "&" + param.key + "=" + param.value;
+        })
+    }
+    var path = '/xapi/v1/monitor/devices/' + deviceId + '?ownerId=' + xapi.ownerId + query;
 
     // send the API request
     api.GET(xapi, devAccount, path,  callback);
