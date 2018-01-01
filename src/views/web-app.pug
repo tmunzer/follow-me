@@ -11,17 +11,20 @@ html
         script(src="/i18n/web-app/en.js")
         script(src="/i18n/web-app/fr.js")
 
+        link(rel='stylesheet' href="/bower_components/bootstrap/dist/css/bootstrap.min.css")
+        link(rel='stylesheet' href='/datetimepicker/css/datetimepicker.css')
+        
         link(rel="stylesheet" href="/bower_components/angular-material-data-table/dist/md-data-table.min.css")
         link(rel="stylesheet" href="/bower_components/angular-material/angular-material.min.css")
         link(rel='stylesheet' href='/css/ah-tm.dashboard.css')
         link(rel='stylesheet' href='/css/ah-tm.tags.css')
         link(rel='stylesheet' href='/css/ah-tm.cards.css')
+        link(rel='stylesheet' href='/css/ah-tm.md-input.css')
         link(rel='stylesheet' href='/css/ah-tm.md-table.css')
         link(rel='stylesheet' href='/css/ah-tm.md-list.css')
         link(rel='stylesheet' href='/css/ah-tm.label.css')
-        
-        script(src="/bower_components/jquery/dist/jquery.js")
 
+        script(src="/bower_components/jquery/dist/jquery.min.js")
         script(src="/bower_components/angular/angular.min.js")  
 
         script(src="/bower_components/angular-aria/angular-aria.js")
@@ -35,12 +38,20 @@ html
         script(src="/bower_components/angular-translate/angular-translate.min.js")
         script(src="/bower_components/angular-bootstrap/ui-bootstrap.min.js")
 
+        script(src="/bower_components/bootstrap/dist/js/bootstrap.min.js")
+        script(src="/bower_components/moment/min/moment.min.js")
+        script(src='/datetimepicker/js/datetimepicker.js')
+        script(src="/datetimepicker/js/datetimepicker.templates.js")
+
+
         script(src="/web-app/app.js")
         script(src="/web-app/routes.js")
         script(src="/web-app/followme/controller.js")
         script(src="/web-app/followme/service.js")
         script(src="/web-app/modals/controller.js")
         script(src="/web-app/modals/service.js")
+        script(src="/web-app/details/controller.js")
+        script(src="/web-app/details/service.js")
     
     body(ng-app="follow" layout-fill style="max-height: 100%").icons-docs
 
@@ -52,7 +63,7 @@ html
                 md-toolbar(layout='row' style="background-color: transparent")
 
                     h1.logo.md-toolbar-tools
-                        img(src="/images/logo_nav.png" alt="Aerohive" style="max-height: 40px;")
+                        img(src="/images/aerohive-logo-white.svg" alt="Aerohive" style="max-height: 40px;")
                     span(flex)                 
                     md-menu
                         md-button(aria-label="menu" ng-click="openMenu($mdOpenMenu, $event)" style="min-width: 20px;")

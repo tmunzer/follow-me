@@ -1,0 +1,6 @@
+.no-error {
+    height: 30px;
+}
+.no-error .md-errors-spacer {
+    display: none;
+}

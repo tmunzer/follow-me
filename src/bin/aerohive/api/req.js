@@ -155,16 +155,17 @@ function httpRequest(options, callback, body) {
                 var dataJSON = JSON.parse(data);
                 result.data = dataJSON.data;
                 result.error = dataJSON.error;
+                result.pagination = dataJSON.pagination;
             }
             request.options.headers['X-AH-API-CLIENT-SECRET'] = "anonymized-data";
             switch (result.result.status) {
                 case 200:
-                    callback(null, result.data, request);
+                    callback(result, request);
                     break;
                 default:
                     var error = {};
                     console.error("\x1b[31mRESPONSE ERROR\x1b[0m:", JSON.stringify(error));
-                    callback(result.error, result.data, request);
+                    callback(result, request);
                     break;
 
             }

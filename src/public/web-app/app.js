@@ -1,4 +1,5 @@
 angular.module("Follow", []);
+angular.module("Details", []);
 angular.module("Modals", []);
 var follow = angular.module("follow", [
     "ngRoute",
@@ -7,20 +8,22 @@ var follow = angular.module("follow", [
     'ngMessages',
     'md.data.table',
     'ui.bootstrap',
+    'ui.bootstrap.datetimepicker',
     'pascalprecht.translate',
     'Follow',
+    'Details',
     'Modals'
 ]);
 
 follow
     .config(function ($mdThemingProvider) {
         $mdThemingProvider.theme('default')
-            .primaryPalette("grey", {
-                'default': '900'
-            })
-            .accentPalette('blue', {
-                'default': '400' // by default use shade 400 from the pink palette for primary intentions
-            });
+        .primaryPalette("blue", {
+            'default': '600'
+        })
+        .accentPalette('green', {
+            'default': '400' // by default use shade 400 from the pink palette for primary intentions
+        });
     })
     .config(['$httpProvider', function ($httpProvider) {
         //initialize get if not there

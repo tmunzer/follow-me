@@ -1,8 +1,12 @@
 <md-content layout="column" class="custom-scroll" flex>
-
+    <style>
+        .highlighted {
+            background: #FFE082;
+        }
+    </style>
 
     <section layout="row">
-        <md-sidenav class="md-sidenav-left" md-component-id="left" md-is-locked-open="$mdMedia('gt-md')" md-whiteframe="1" style="max-width: 200px; background-color: #212121">
+        <md-sidenav class="md-sidenav-left" md-component-id="left" md-is-locked-open="$mdMedia('gt-md')" md-whiteframe="1" style="max-width: 200px; background-color: #212121; display: none">
             <md-toolbar>
                 <h1 class="md-toolbar-tools">Filters</h1>
             </md-toolbar>
@@ -35,37 +39,87 @@
         </md-sidenav>
 
 
-        <md-content flex layout="column">
-            <article md-whiteframe="2">
-                <span> From </span>
-                <span> To </span>
+        <md-content flex layout="column" style="background-color: #fff">
+            <article md-whiteframe="2" style="background-color: rgb(250,250,250)">
+                <div layout="row">
+                    <div class="dropdown form-group dropdown-start-parent" style="padding: 10px; margin-bottom: 0 !important">
+                        <label>Start Date</label>
+                        <a class="dropdown-toggle" id="dropdownStart" role="button" data-toggle="dropdown" data-target=".dropdown-start-parent">
+                            <div class="input-group date">
+                                <input type="text" class="form-control" data-ng-model="dateRangeStart">
+                                <span class="input-group-addon">
+                                    <i class="glyphicon glyphicon-calendar"></i>
+                                </span>
+                            </div>
+                        </a>
+                        <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
+                            <datetimepicker data-ng-model="dateRangeStart" data-datetimepicker-config="{ dropdownSelector: '#dropdownStart', renderOn: 'end-date-changed' }"
+                                 data-before-render="startDateBeforeRender($dates)"></datetimepicker>
+                        </ul>
+                    </div>
+
+                    <div class="dropdown form-group dropdown-end-parent" style="padding: 10px; margin-bottom: 0 !important">
+                        <label>End Date</label>
+                        <a class="dropdown-toggle" id="dropdownEnd" role="button" data-toggle="dropdown" data-target=".dropdown-end-parent">
+                            <div class="input-group date">
+                                <input type="text" class="form-control" data-ng-model="dateRangeEnd">
+                                <span class="input-group-addon">
+                                    <i class="glyphicon glyphicon-calendar"></i>
+                                </span>
+                            </div>
+                        </a>
+                        <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
+                            <datetimepicker data-ng-model="dateRangeEnd" data-datetimepicker-config="{ dropdownSelector: '#dropdownEnd', renderOn: 'start-date-changed' }"
+                                data-before-render="endDateBeforeRender($view, $dates, $leftDate, $upDate, $rightDate)"></datetimepicker>
+                        </ul>
+                    </div>
+                    <div layout="row">
+                        <md-button style="margin: auto 0 10px" ng-click="refresh()">
+                            Validate
+                            <md-icon md-svg-src="/images/icons/ic_done_24px.svg" style="margin: auto 5px" aria-label="refresh"></md-icon>
+                        </md-button>
+                        <md-button style="margin: auto 0 10px" ng-click="refresh()">
+                            <span>Refresh</span>
+                            <md-icon md-svg-src="/images/icons/ic_refresh_24px.svg" style="margin: auto 5px" aria-label="refresh"></md-icon>
+                        </md-button>
+                    </div>
+                </div>
 
             </article>
 
             <article md-whiteframe="2">
-                <md-content flex layout="column">
-                    <md-input-container md-no-float class="md-block" style="margin: 10px 10px 0 10px;padding: 0;">
-                        <input type="text" ng-model="query.filter" ng-model-options="query.filterOptions" placeholder="Filter (MAC Address, IP Address, Hostname)"
+                <md-content flex layout="row" style="padding: 0 20px">
+                    <md-icon md-svg-src="/images/icons/ic_search_24px.svg" style="margin: auto 5px"></md-icon>
+                    <md-input-container md-no-float class="md-block no-error" style="margin: 10px;padding: 0;" flex>
+                        <input type="text" ng-model="query.filter" ng-model-options="query.filterOptions" placeholder="MAC Address, IP Address, Hostname"
                             aria-invalid="false">
                     </md-input-container>
+                    <md-button md-no-ink class="md-icon-button" style="margin: auto" ng-click="removeFilter()" ng-disabled="query.filter == ''">
+                        <md-icon md-svg-src="/images/icons/ic_close_24px.svg" style="margin: auto 5px;" aria-label="clear"></md-icon>
+                    </md-button>
                 </md-content>
-                <!-- exact table from live demo -->
+            </article>
+
+            <article md-whiteframe="5">
                 <md-table-container>
                     <table md-table ng-model="clients" md-progress="requestInit">
                         <thead md-head md-order="query.order">
                             <tr md-row>
-                                <th md-column>
+                                <th md-column style="width: 15%">
                                     <span>Connection Type</span>
                                 </th>
-                                <th md-column md-order-by="clientMac">
+                                <th md-column style="width: 15%"  md-order-by="os">
+                                        <span>OS</span>
+                                    </th>
+                                <th md-column style="width: 15%" md-order-by="clientMac">
                                     <span>MAC Address</span>
                                 </th>
-                                <th md-column md-order-by="hostName">
+                                <th md-column style="width: 20%">IP Address(es)</th>
+                                <th md-column style="width: 20%" md-order-by="hostName">
                                     <span>Hostname</span>
                                 </th>
-                                <th md-column>IP Address(es)</th>
-                                <th md-column># of Sessions</th>
-                                <th md-column md-order-by="usage">
+                                <th md-column style="width: 5%" md-numeric md-order-by="sessions"># of Sessions</th>
+                                <th md-column style="width: 10%" md-numeric md-order-by="usage">
                                     <span>Usage</span>
                                 </th>
                             </tr>
@@ -73,18 +127,29 @@
                         <tbody md-body>
                             <tr md-row md-select="client" md-select-id="clientId" md-auto-select ng-repeat="client in clients | orderBy: query.order | limitTo: query.limit: (query.page - 1) * query.limit">
                                 <td md-cell>{{connectionType(client)}}</td>
-                                <td md-cell>{{client.clientMac}}</td>
-                                <td md-cell>{{client.hostName}}</td>
-                                <td md-cell>{{client.ip}}</td>
-                                <td md-cell>{{countSessions(client)}}</td>
+                                <td md-cell>{{client.os}}</td>
+                                <td md-cell>
+                                        <md-button ng-click="clientInfo(client)">
+                                    <span ng-bind-html="client.clientMac | highlight:query.filter">
+                                        {{client.clientMac}}
+                                    </span>
+                                    </md-button>
+                                </td>
+                                <td md-cell>
+                                    <span ng-bind-html="client.ip | highlight:query.filter">{{client.ip}}</span>
+                                </td>
+                                <td md-cell>
+                                    <span ng-bind-html="client.hostName | highlight:query.filter">{{client.hostName}}</span>
+                                </td>
+                                <td md-cell>{{client.sessions}}</td>
                                 <td md-cell>{{client.usage }}</td>
                             </tr>
                         </tbody>
                     </table>
                 </md-table-container>
 
-                <md-table-pagination md-limit="query.limit" md-limit-options="[5, 10, 15]" md-page="query.page" md-total="{{clients.length}}"
-                    md-on-paginate="getDesserts" md-page-select></md-table-pagination>
+                <md-table-pagination md-limit="query.limit" md-limit-options="query.limitOptions" md-page="query.page" md-total="{{clients.length}}"
+                    md-page-select></md-table-pagination>
             </article>
         </md-content>
     </section>

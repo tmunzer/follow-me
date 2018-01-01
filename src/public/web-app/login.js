@@ -3,15 +3,16 @@ var login = angular.module('login', [
 ]);
 
 login
-.config(function ($mdThemingProvider) {
-    $mdThemingProvider.theme('default')
-        .primaryPalette("grey", {
-            'default': '900'
-        })
-        .accentPalette('amber', {
-            'default': '600' // by default use shade 400 from the pink palette for primary intentions
-        });
-}).config(function ($translateProvider) {
+    .config(function ($mdThemingProvider) {
+        $mdThemingProvider.theme('default')
+            .primaryPalette("blue", {
+                'default': '600'
+            })
+            .accentPalette('green', {
+                'default': '400' // by default use shade 400 from the pink palette for primary intentions
+            });
+    })
+    .config(function ($translateProvider) {
         $translateProvider.useMissingTranslationHandlerLog();
         $translateProvider
             .translations('en', en)

@@ -1,0 +1,141 @@
+<md-dialog aria-label="List dialog" style="min-width: 99%; min-height: 95%">
+    <md-toolbar>
+        <div class="md-toolbar-tools">
+            <h2>Details</h2>
+            <span flex></span>
+            <md-button md-no-ink class="md-icon-button" style="margin: auto" ng-click="close()">
+                <md-icon md-svg-src="/images/icons/ic_close_24px.svg" style="margin: auto 5px;" aria-label="clear"></md-icon>
+            </md-button>
+        </div>
+
+    </md-toolbar>
+    <md-dialog-content>
+        <article md-whiteframe="2">
+            <md-content layout="row">
+                <md-content layout="column">
+                    <div><span>OS:</span><span>{{details.os}}</span></div>
+                    <div><span>MAC Address:</span><span>{{details.clientMac}}</span></div>
+                </md-content>
+                <md-content layout="column">
+                        <div><span># of sessions:</span><span>{{details.sessions}}</span></div>
+                        <div><span>Total Usage:</span><span>{{details.usage}}</span></div>
+                        
+                    </md-content>
+                <md-content layout="column"></md-content>
+            </md-content>
+
+
+        </article>
+        <article md-whiteframe="2">
+            <md-content flex layout="row" style="padding: 0 20px">
+                <md-icon md-svg-src="/images/icons/ic_search_24px.svg" style="margin: auto 5px"></md-icon>
+                <md-input-container md-no-float class="md-block no-error" style="margin: 10px;padding: 0;" flex>
+                    <input type="text" ng-model="query.filter" ng-model-options="query.filterOptions" placeholder="SSID, IP Address, Hostname, Username, User Profile"
+                        aria-invalid="false">
+                </md-input-container>
+                <md-button md-no-ink class="md-icon-button" style="margin: auto" ng-click="removeFilter()" ng-disabled="query.filter == ''">
+                    <md-icon md-svg-src="/images/icons/ic_close_24px.svg" style="margin: auto 5px;" aria-label="clear"></md-icon>
+                </md-button>
+            </md-content>
+        </article>
+
+        <article md-whiteframe="5">
+            <md-table-container>
+                <table md-table ng-model="sessions" md-progress="requestDetails">
+                    <thead md-head md-order="query.order">
+                        <tr md-row>
+                            <th md-column style="width: 15%">
+                                <span>Connection Type</span>
+                            </th>
+                            <th md-column style="width: 10%" md-order-by="deviceId">
+                                <span>DeviceId</span>
+                            </th>
+                            <th md-column style="width: 10%" md-order-by="ssid">
+                                <span>SSID</span>
+                            </th>
+                            <th md-column style="width: 10%" md-order-by="userName">
+                                <span>Username</span>
+                            </th>
+                            <th md-column style="width: 15%" md-order-by="hostName">
+                                <span>Hostname</span>
+                            </th>
+                            <th md-column style="width: 10%" md-order-by="userProfile">
+                                <span>User Profile</span>
+                            </th>
+                            <th md-column style="width: 5%" md-order-by="vlan">
+                                <span>VLAN</span>
+                            </th>
+                            <th md-column style="width: 15%" md-order-by="ip">
+                                <span>IP Address</span>
+                            </th>
+                            <th md-column style="width: 5%" md-order-by="rssi">
+                                <span>RSSI</span>
+                            </th>
+                            <th md-column style="width: 5%" md-order-by="snr">
+                                <span>SNR</span>
+                            </th>
+                            <th md-column style="width: 5%" md-order-by="clientHealth">
+                                <span>Client Health</span>
+                            </th>
+                            <th md-column style="width: 5%" md-order-by="radioHealth">
+                                <span>Radio Health</span>
+                            </th>
+                            <th md-column style="width: 5%" md-order-by="networkHealth">
+                                <span>Network Health</span>
+                            </th>
+                            <th md-column style="width: 5%" md-order-by="applicationHealth">
+                                <span>Application Health</span>
+                            </th>
+                            <th md-column style="width: 10%" md-order-by="sessionStart">
+                                <span>Session Start</span>
+                            </th>
+                            <th md-column style="width: 10%" md-order-by="sessionEnd">
+                                <span>Session End</span>
+                            </th>
+                            <th md-column style="width: 10%" md-numeric md-order-by="usage">
+                                <span>Usage</span>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody md-body>
+                        <tr md-row md-auto-select ng-repeat="session in sessions | orderBy: query.order | limitTo: query.limit: (query.page - 1) * query.limit">
+                            <td md-cell>{{session.connectionType}}</td>
+                            <td md-cell>{{session.deviceId}}</td>
+                            <td md-cell>
+                                <span ng-bind-html="session.ssid | highlight:query.filter">{{session.ssid}}</span>
+                            </td>
+                            <td md-cell>
+                                <span ng-bind-html="session.userName | highlight:query.filter">{{session.userName}}</span>
+                            </td>
+                            <td md-cell>
+                                <span ng-bind-html="session.hostName | highlight:query.filter">{{session.hostName}}</span>
+                            </td>
+                            <td md-cell>
+                                <span ng-bind-html="session.userProfile | highlight:query.filter">{{session.userProfile}}</span>
+                            </td>
+                            <td md-cell>
+                                <span ng-bind-html="session.vlan | highlight:query.filter">{{session.vlan}}</span>
+                            </td>
+                            <td md-cell>
+                                <span ng-bind-html="session.ip | highlight:query.filter">{{session.ip}}</span>
+                            </td>
+                            <td md-cell>{{session.rssi}}</td>
+                            <td md-cell>{{session.snr}}</td>
+                            <td md-cell>{{session.clientHealth}}</td>
+                            <td md-cell>{{session.radioHealth}}</td>
+                            <td md-cell>{{session.networkHealth}}</td>
+                            <td md-cell>{{session.applicationHealth}}</td>
+                            <td md-cell>{{session.sessionStart}}</td>
+                            <td md-cell>{{session.sessionEnd}}</td>
+                            <td md-cell>{{session.usage }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </md-table-container>
+
+            <md-table-pagination md-limit="query.limit" md-limit-options="query.limitOptions" md-page="query.page" md-total="{{sessions.length}}"
+                 md-page-select></md-table-pagination>
+        </article>
+    </md-dialog-content>
+
+</md-dialog>
