@@ -43,10 +43,10 @@ function create_app_container
 # =========================================================
 # =========================================================
 SCRIPT_CONF=`pwd`"/ah-ref-app.conf"
-SCRIPT_NAME="api-test-tool"
+SCRIPT_NAME="follow-me"
 
-APP_NAME="api-test-tool"
-APP_IMG="tmunzer/api-test-tool"
+APP_NAME="follow-me"
+APP_IMG="tmunzer/follow-me"
 OAUTH_CALLBACK="oauth/reg"
 
 LETSENCRYPT_ENABLE=true
