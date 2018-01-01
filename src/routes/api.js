@@ -91,7 +91,7 @@ function getClients(req, res, qsParam, cb, clientsParam, clientsCountParam) {
 
     API.monitor.clients.clients(req.session.xapi, devAccount, qs, function (response, request) {
         console.log(response.pagination);
-        if (response.error) InitDone(req, res, err);
+        if (response.error) InitDone(req, res, response.error);
         else {
             for (var i = 0; i < response.data.length; i++) {
                 clients.push(response.data[i])
@@ -139,14 +139,14 @@ router.get("/init", checkApi, function (req, res, next) {
     ];
 
     API.configuration.locations.locations(req.session.xapi, devAccount, function (response, request) {
-        if (response.error) InitDone(req, res, err);
+        if (response.error) InitDone(req, res, response.error);
         else {
             req.session.locations = response;
             InitDone(req, res);
         }
     })
     API.monitor.devices.devices(req.session.xapi, devAccount, qs, function (response, request) {
-        if (response.error) InitDone(req, res, err);
+        if (response.error) InitDone(req, res, response.errorresponse.error);
         else {
             req.session.devices = response;
             InitDone(req, res);
