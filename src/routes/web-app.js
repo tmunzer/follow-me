@@ -7,7 +7,7 @@ var router = express.Router();
 router.get('/', function (req, res) {
     if (req.session.xapi) {
         res.render('web-app', {
-            title: 'API Test Tool',
+            title: 'Follow Me',
             vpcUrl: req.session.xapi.vpcUrl,
             ownerId: req.session.xapi.ownerId,
             accessToken: req.session.xapi.accessToken,

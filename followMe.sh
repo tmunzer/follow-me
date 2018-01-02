@@ -45,7 +45,7 @@ function create_app_container
 SCRIPT_CONF=`pwd`"/ah-ref-app.conf"
 SCRIPT_NAME="follow-me"
 
-APP_NAME="follow-me"
+APP_NAME="followme"
 APP_IMG="tmunzer/follow-me"
 OAUTH_CALLBACK="oauth/reg"
 

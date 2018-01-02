@@ -129,7 +129,7 @@
                                 <td md-cell>{{connectionType(client)}}</td>
                                 <td md-cell>{{client.os}}</td>
                                 <td md-cell>
-                                        <md-button ng-click="clientInfo(client)">
+                                        <md-button ng-click="clientInfo(client)" class="md-primary">
                                     <span ng-bind-html="client.clientMac | highlight:query.filter">
                                         {{client.clientMac}}
                                     </span>

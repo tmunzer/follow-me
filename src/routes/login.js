@@ -16,7 +16,7 @@ router.get('/', function (req, res, next) {
         var errorcode;
         if (req.query.errorcode) errorcode = req.query["errorcode"];
         res.render('login', {
-            title: 'API Test Tool',
+            title: 'Follow Me',
             errorcode: errorcode,
             client_id: devAccount.clientID,
             apiServers: apiServers,
@@ -64,7 +64,7 @@ router.post('/op', function (req, res, next) {
 });
 router.get('/howto/', function (req, res, next) {
     res.render('howto', {
-        title: 'Api Test Tool',
+        title: 'Follow Me',
         clientID: devAccount.clientID,
         apiServers: apiServers
     });
