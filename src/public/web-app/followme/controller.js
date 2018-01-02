@@ -80,13 +80,19 @@ angular.module('Follow')
         function endDateBeforeRender($view, $dates) {
             if ($scope.dateRangeStart) {
                 var activeDate = moment($scope.dateRangeStart).subtract(1, $view).add(1, 'minute');
-
                 $dates.filter(function (date) {
                     return date.localDateValue() <= activeDate.valueOf()
                 }).forEach(function (date) {
                     date.selectable = false;
                 })
+
             }
+            activeDate = moment(new Date()).add(1, 'minute');
+            $dates.filter(function (date) {
+                return date.localDateValue() > activeDate.valueOf()
+            }).forEach(function (date) {
+                date.selectable = false;
+            })
         }
 
         $scope.clientInfo = clientInfo;
