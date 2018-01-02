@@ -55,7 +55,7 @@ var oauth = require('./routes/oauth');
 app.use('/', routes);
 app.use('/web-app/', webapp);
 app.use('/api/', api);
-app.use('/admin/oauth/', oauth);
+app.use('/oauth/', oauth);
 
 
 // catch 404 and forward to error handler
