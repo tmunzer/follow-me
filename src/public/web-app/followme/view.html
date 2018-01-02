@@ -54,7 +54,7 @@
                         </a>
                         <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
                             <datetimepicker data-ng-model="dateRangeStart" data-datetimepicker-config="{ dropdownSelector: '#dropdownStart', renderOn: 'end-date-changed' }"
-                                 data-before-render="startDateBeforeRender($dates)"></datetimepicker>
+                                data-before-render="startDateBeforeRender($dates)"></datetimepicker>
                         </ul>
                     </div>
 
@@ -86,7 +86,27 @@
                 </div>
 
             </article>
-
+            <div>
+                <div layout="row">
+                    <article md-whiteframe="2" flex=33>
+                        <div class="chart-heading">OS</div>
+                        <div class="chart-body" >
+                            <canvas id="os" class="chart chart-doughnut" chart-data="os.data" chart-labels="os.label" chart-options="os.options">
+                            </canvas>
+                        </div>
+                </article>
+                    <div flex></div>
+                    <article md-whiteframe="2" flex=60>
+                        <div class="chart-heading">Number of concurent sessions over 24hours</div>
+                        <div class="chart-body">
+                                <canvas id="concurent" class="chart chart-line" chart-data="concurent.data"
+                                chart-labels="concurent.labels" chart-series="concurent.series" chart-options="concurent.options"
+                                chart-dataset-override="datasetOverride" style="height:100vh">
+                        </canvas>
+                        </div>
+                    </article>
+                </div>
+            </div>
             <article md-whiteframe="2">
                 <md-content flex layout="row" style="padding: 0 20px">
                     <md-icon md-svg-src="/images/icons/ic_search_24px.svg" style="margin: auto 5px"></md-icon>
@@ -108,9 +128,9 @@
                                 <th md-column style="width: 15%">
                                     <span>Connection Type</span>
                                 </th>
-                                <th md-column style="width: 15%"  md-order-by="os">
-                                        <span>OS</span>
-                                    </th>
+                                <th md-column style="width: 15%" md-order-by="os">
+                                    <span>OS</span>
+                                </th>
                                 <th md-column style="width: 15%" md-order-by="clientMac">
                                     <span>MAC Address</span>
                                 </th>
@@ -129,10 +149,10 @@
                                 <td md-cell>{{connectionType(client)}}</td>
                                 <td md-cell>{{client.os}}</td>
                                 <td md-cell>
-                                        <md-button ng-click="clientInfo(client)" class="md-primary">
-                                    <span ng-bind-html="client.clientMac | highlight:query.filter">
-                                        {{client.clientMac}}
-                                    </span>
+                                    <md-button ng-click="clientInfo(client)" class="md-primary">
+                                        <span ng-bind-html="client.clientMac | highlight:query.filter">
+                                            {{client.clientMac}}
+                                        </span>
                                     </md-button>
                                 </td>
                                 <td md-cell>

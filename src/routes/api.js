@@ -114,14 +114,68 @@ function getClients(req, res, qsParam, cb, clientsParam, clientsCountParam) {
 function InitDone(req, res, err) {
     if (err) sendError(res, req, err);
     else if (req.session.locations && req.session.devices && req.session.clients)
-        res.json({ locations: req.session.locations, devices: req.session.devices, clients: req.session.clients });
+        res.json({
+            locations: req.session.locations,
+            devices: req.session.devices,
+            clients: req.session.clients,
+            concurentSessions: req.session.concurentSessions,
+            meanConcurentSessions: req.session.meanConcurentSessions,
+            os: req.session.os
+        });
+}
+
+function alignSessionTime(sessionTime, delta) {
+    let resultMinutes, result;
+    const minutes = new Date(sessionTime).getMinutes()
+    const minutesMod = minutes % delta;
+    const secondes = new Date(sessionTime).getSeconds() + 60 * minutesMod;
+    const deltaSec = delta * 60 / 2;
+    if (secondes - deltaSec <= 0) resultMinutes = minutes - minutesMod;
+    else if (secondes - deltaSec > 0) resultMinutes = minutes + delta - minutesMod;
+    result = new Date(sessionTime).setMinutes(resultMinutes);
+    result = new Date(result).setSeconds(00);
+    result = new Date(result).setMilliseconds(00);
+    return new Date(result).getTime();
+}
+function countConcurent(req, session) {
+    if (new Date(session.sessionStart) > new Date(0)) {
+        const delta = 5;
+        const deltams = 60000 * delta; // x minutes
+        const endTime = alignSessionTime(session.sessionEnd, delta);
+        const startTime = alignSessionTime(session.sessionStart, delta);
+        for (var time = startTime; time <= endTime; time += deltams) {
+            if (req.session.concurentSessions[time]) req.session.concurentSessions[time] += 1;
+            else req.session.concurentSessions[time] = 1;
+        }
+    }
+}
+function calculateMeanConcurent(req) {
+    let hours, minutes, index;
+    let meanConcurentSessions = {};
+    for (var key in req.session.concurentSessions) {
+        hours = new Date(parseInt(key)).getHours();
+        minutes = new Date(parseInt(key)).getMinutes();
+        index = hours + ":" + minutes;
+        if (!meanConcurentSessions[index])
+            meanConcurentSessions[index] = {
+                count: 1,
+                total: req.session.concurentSessions[key],
+                max: req.session.concurentSessions[key]
+            }
+        else {
+            meanConcurentSessions[index].count += 1;
+            meanConcurentSessions[index].total += req.session.concurentSessions[key]
+            if (req.session.concurentSessions[key] > meanConcurentSessions[index].max)
+                meanConcurentSessions[index].max = req.session.concurentSessions[key]
+        }
+    }
+    for (var key in meanConcurentSessions) {
+        meanConcurentSessions[key].average = meanConcurentSessions[key].total / meanConcurentSessions[key].count;
+    }
+    req.session.meanConcurentSessions = meanConcurentSessions;
 }
 router.get("/init", checkApi, function (req, res, next) {
-    req.session.location = undefined;
-    req.session.devices = undefined;
-    req.session.clients = undefined;
     let endTime, startTime;
-    let os = {};
     if (req.query.endTime && req.query.startTime) {
         endTime = req.query.endTime;
         startTime = req.query.startTime;
@@ -131,83 +185,98 @@ router.get("/init", checkApi, function (req, res, next) {
         endTime = endTime.toISOString();
         startTime = startTime.toISOString();
     }
-    console.log(startTime, endTime);
     qs = [
         { 'key': 'startTime', 'value': startTime },
         { 'key': 'endTime', 'value': endTime },
         { 'key': 'page', 'value': 0 }
     ];
+    if (req.session.sessionStart == startTime && req.session.sessionEnd == endTime) InitDone(req, res);
+    else {
+        req.session.locations = undefined;
+        req.session.devices = undefined;
+        req.session.clients = undefined;
+        req.session.os = {};
+        req.session.concurentSessions = {};
+        req.session.meanConcurentSessions = {};
+        req.session.sessionStart = startTime;
+        req.session.sessionEnd = endTime;
 
-    API.configuration.locations.locations(req.session.xapi, devAccount, function (response, request) {
-        if (response.error) InitDone(req, res, response.error);
-        else {
-            req.session.locations = response;
-            InitDone(req, res);
-        }
-    })
-    API.monitor.devices.devices(req.session.xapi, devAccount, qs, function (response, request) {
-        if (response.error) InitDone(req, res, response.errorresponse.error);
-        else {
-            req.session.devices = response;
-            InitDone(req, res);
-        }
-    })
-    getClients(req, res, qs, function (response, request) {
-        let clientsObject = {};
-        let clients = [];
-        let sessions = {};
-        if (response.length > 0) {
-            response.forEach(function (session) {
-                //console.log(session.clientId, clientsObject[session.clientId]);
-                if (clientsObject[session.clientId] != undefined) {
-                    clientsObject[session.clientId].sessions += 1;
-                    clientsObject[session.clientId].usage += session.usage;
-                    if (clientsObject[session.clientId].ip.indexOf(session.ip) < 0) clientsObject[session.clientId].ip.push(session.ip);
-                    sessions[session.clientId].push(session);
-                } else {
-                    clientsObject[session.clientId] = {
-                        'clientId': session.clientId,
-                        'clientMac': session.clientMac,
-                        'hostName': session.hostName,
-                        'usage': session.usage,
-                        'ip': [session.ip],
-                        'os': session.os,
-                        'sessions': 1,
-                        'wireless': false,
-                        'wired': false
+        API.configuration.locations.locations(req.session.xapi, devAccount, function (response, request) {
+            if (response.error) InitDone(req, res, response.error);
+            else {
+                req.session.locations = response;
+                InitDone(req, res);
+            }
+        })
+        API.monitor.devices.devices(req.session.xapi, devAccount, qs, function (response, request) {
+            if (response.error) InitDone(req, res, response.errorresponse.error);
+            else {
+                req.session.devices = response;
+                InitDone(req, res);
+            }
+        })
+
+        getClients(req, res, qs, function (response, request) {
+            let clientsObject = {};
+            let clients = [];
+            let sessions = {};
+            if (response.length > 0) {
+                response.forEach(function (session) {
+                    //console.log(session.clientId, clientsObject[session.clientId]);
+                    if (clientsObject[session.clientId] != undefined) {
+                        clientsObject[session.clientId].sessions += 1;
+                        clientsObject[session.clientId].usage += session.usage;
+                        if (clientsObject[session.clientId].ip.indexOf(session.ip) < 0) clientsObject[session.clientId].ip.push(session.ip);
+                        sessions[session.clientId].push(session);
+                    } else {
+                        clientsObject[session.clientId] = {
+                            'clientId': session.clientId,
+                            'clientMac': session.clientMac,
+                            'hostName': session.hostName,
+                            'usage': session.usage,
+                            'ip': [session.ip],
+                            'os': session.os,
+                            'sessions': 1,
+                            'wireless': false,
+                            'wired': false
+                        }
+                        sessions[session.clientId] = [session];
+                        if (req.session.os[session.os]) req.session.os[session.os] += 1;
+                        else req.session.os[session.os] = 1
                     }
-                    sessions[session.clientId] = [session];
-                    if (os[session.os]) os[session.os] += 1;
-                    else os[session.os] = 1
-                }
-                if (session.connectionType == "WIRELESS") clientsObject[session.clientId].wireless = true;
-                else if (session.connectionType == "WIRED") clientsObject[session.clientId].wired = true;
-            });
-            const clientsIds = Object.keys(clientsObject);
-            clientsIds.forEach(function (clientsId) {
-                clientsObject[clientsId].ip = clientsObject[clientsId].ip.join(", ");
-                clients.push(clientsObject[clientsId]);
-            });
-        }
-        req.session.clients = clients;
-        req.session.sessions = sessions;
-        InitDone(req, res);
-    })
+                    if (session.connectionType == "WIRELESS") clientsObject[session.clientId].wireless = true;
+                    else if (session.connectionType == "WIRED") clientsObject[session.clientId].wired = true;
+                    console.log("concur");
+                    countConcurent(req, session);
+                });
+                console.log("average");
+                calculateMeanConcurent(req);
+                const clientsIds = Object.keys(clientsObject);
+                clientsIds.forEach(function (clientsId) {
+                    clientsObject[clientsId].ip = clientsObject[clientsId].ip.join(", ");
+                    clients.push(clientsObject[clientsId]);
+                });
+            }
+            req.session.clients = clients;
+            req.session.sessions = sessions;
+            InitDone(req, res);
+        });
+    }
 })
 
 /**
  * GET CLIENT INFO
  */
 router.get("/client", checkApi, function (req, res, next) {
-    
+
     const clientId = req.query.clientId;
     let details = {}
 
-    for (var i =0; i < req.session.clients.length; i++){
+    for (var i = 0; i < req.session.clients.length; i++) {
         if (req.session.clients[i].clientId == clientId)
-        details = req.session.clients[i];
+            details = req.session.clients[i];
     }
-    res.json({sessions: req.session.sessions[clientId], details: details});
+    res.json({ sessions: req.session.sessions[clientId], details: details });
 });
 
 

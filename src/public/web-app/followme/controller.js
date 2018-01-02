@@ -3,6 +3,33 @@
 angular.module('Follow')
     .controller("FollowCtrl", function ($scope, $mdDialog, initService) {
         $scope.requestInit = undefined;
+        $scope.os = {
+            data : [],
+            labels: [],
+            options: {
+                legend: {
+                    display: true,
+                    position: "right"
+                }
+            }
+        }
+        $scope.concurent = {
+            data: [],
+            label: [],
+            series: ["max", "average"],
+            scales: {
+                yAxes: [
+                  {
+                    type: 'linear',
+                    display: true,
+                    position: 'left'
+                  }
+                ]
+            }, 
+            options: {
+                maintainAspectRatio: false
+            }
+        }
 
         /* 
         DISPLAY FUNCTIONS
@@ -63,8 +90,6 @@ angular.module('Follow')
         $scope.endDateBeforeRender = endDateBeforeRender;
         $scope.startDateBeforeRender = startDateBeforeRender;
 
-
-
         function startDateBeforeRender($dates) {
             if ($scope.dateRangeEnd) {
                 var activeDate = moment($scope.dateRangeEnd);
@@ -105,6 +130,35 @@ angular.module('Follow')
                 }
             });
         }
+
+        /**
+         * CHARTS
+         */
+
+        function chartOs(os){
+            $scope.os.data = [];
+            $scope.os.label= [];
+            
+            for (var key in os){
+                $scope.os.label.push(key);
+                $scope.os.data.push(os[key]);
+            }
+        }
+
+        function chartConcurent(sessions){
+            $scope.concurent.data = [];
+            $scope.concurent.labels= [];
+            let max = [];
+            let average = [];
+
+            for (var key in sessions){
+                $scope.concurent.labels.push(key);
+                max.push(sessions[key].max);
+                average.push(sessions[key].average);
+            }
+            $scope.concurent.data=[max, average];
+            console.log($scope.concurent);
+        }
         /* 
         ENTRY POINT AND LOADING FUNCTION
         */
@@ -117,6 +171,8 @@ angular.module('Follow')
                 else if (promise) {
                     clients = promise.data.clients;
                     $scope.clients = clients;
+                    chartOs(promise.data.os);
+                    chartConcurent(promise.data.meanConcurentSessions);
                 }
             })
         }

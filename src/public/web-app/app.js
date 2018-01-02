@@ -10,6 +10,7 @@ var follow = angular.module("follow", [
     'ui.bootstrap',
     'ui.bootstrap.datetimepicker',
     'pascalprecht.translate',
+    'chart.js',
     'Follow',
     'Details',
     'Modals'
