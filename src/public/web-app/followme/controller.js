@@ -5,6 +5,7 @@ angular.module('Follow')
         $scope.requestInit = undefined;
         $scope.colors = [ '#97bbcd', '#4D5360', '#00ADF9', '#DCDCDC', '#46BFBD', '#FDB45C', '#949FB1'];
         $scope.os = {
+            loading : true,
             data: [],
             labels: [],
             options: {
@@ -15,6 +16,7 @@ angular.module('Follow')
             }
         }
         $scope.concurent = {
+            loading : true,
             data: [],
             labels: [],
             series: ["max", "average"],
@@ -148,6 +150,7 @@ angular.module('Follow')
                 $scope.os.label.push(key);
                 $scope.os.data.push(os[key]);
             }
+            $scope.os.loading = false;
         }
 
         function chartConcurent(sessions) {
@@ -162,7 +165,7 @@ angular.module('Follow')
                 average.push(sessions[key].average);
             }
             $scope.concurent.data = [max, average];
-            console.log($scope.concurent);
+            $scope.concurent.loading = false;
         }
         /* 
         ENTRY POINT AND LOADING FUNCTION
@@ -170,6 +173,8 @@ angular.module('Follow')
         $scope.refresh = refresh;
         function refresh() {
             if ($scope.requestInit) $scope.requestInit.abort();
+            $scope.os.loading=true;
+            $scope.concurent.loading=true;
             $scope.requestInit = initService($scope.dateRangeStart, $scope.dateRangeEnd);
             $scope.requestInit.then(function (promise) {
                 if (promise && promise.error) console.log("ERR", promise.error)

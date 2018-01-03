@@ -1,11 +1,11 @@
-<md-content layout="column" class="custom-scroll" flex style="height: 100%">
+<md-content layout="column" class="custom-scroll" flex>
     <style>
         .highlighted {
             background: #FFE082;
         }
     </style>
 
-    <section layout="row">
+    <section layout="row" flex>
         <md-sidenav class="md-sidenav-left" md-component-id="left" md-is-locked-open="$mdMedia('gt-md')" md-whiteframe="1" style="max-width: 200px; background-color: #212121; display: none">
             <md-toolbar>
                 <h1 class="md-toolbar-tools">Filters</h1>
@@ -86,19 +86,27 @@
                 <div layout="row">
                     <article md-whiteframe="2" flex=33>
                         <div class="chart-heading">OS</div>
-                        <div class="chart-body" >
+                        <div class="chart-body" ng-hide="os.loading" >
                             <canvas id="os" class="chart chart-doughnut" chart-data="os.data" chart-labels="os.label" chart-options="os.options" chart-colors="colors">
                             </canvas>
+                        </div>
+                        <div class="chart-loading" ng-hide="!os.loading">
+                            <md-progress-circular md-mode="indeterminate" class="md-primary" style="margin: auto;">
+                            </md-progress-circular>
                         </div>
                 </article>
                     <div flex></div>
                     <article md-whiteframe="2" flex=60>
                         <div class="chart-heading">Number of concurent sessions over 24hours</div>
-                        <div class="chart-body">
-                                <canvas id="concurent" class="chart chart-line" chart-data="concurent.data"
+                        <div class="chart-body" ng-hide="concurent.loading">
+                                <canvas  id="concurent" class="chart chart-line" chart-data="concurent.data"
                                 chart-labels="concurent.labels" chart-series="concurent.series" chart-options="concurent.options"
                                 chart-colors="colors" chart-dataset-override="concurent.datasetOverride" style="height:100vh; width: 90vw">
                         </canvas>
+                        </div>
+                        <div class="chart-loading" ng-hide="!concurent.loading">
+                            <md-progress-circular md-mode="indeterminate" class="md-primary" style="margin: auto;">
+                            </md-progress-circular>
                         </div>
                     </article>
                 </div>
