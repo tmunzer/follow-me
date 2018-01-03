@@ -119,7 +119,7 @@ function InitDone(req, res, err) {
             devices: req.session.devices,
             clients: req.session.clients,
             concurentSessions: req.session.concurentSessions,
-            meanConcurentSessions: req.session.meanConcurentSessions,
+            averageConcurentSessions: req.session.averageConcurentSessions,
             os: req.session.os
         });
 }
@@ -137,42 +137,45 @@ function alignSessionTime(sessionTime, delta) {
     result = new Date(result).setMilliseconds(00);
     return new Date(result).getTime();
 }
-function countConcurent(req, session) {
+function calculateConcurent(req, session) {
     if (new Date(session.sessionStart) > new Date(0)) {
         const delta = 5;
         const deltams = 60000 * delta; // x minutes
         const endTime = alignSessionTime(session.sessionEnd, delta);
         const startTime = alignSessionTime(session.sessionStart, delta);
         for (var time = startTime; time <= endTime; time += deltams) {
-            if (req.session.concurentSessions[time]) req.session.concurentSessions[time] += 1;
-            else req.session.concurentSessions[time] = 1;
+            if (!req.session.concurentSessions[time]) req.session.concurentSessions[time] = { count: 1, list: [session.clientId] };
+            else if (req.session.concurentSessions[time].list.indexOf(session.clientId) < 0) {
+                req.session.concurentSessions[time].count += 1;
+                req.session.concurentSessions[time].list.push(session.clientId);
+            }
         }
     }
 }
-function calculateMeanConcurent(req) {
+function calculateAvergaeConcurent(req) {
     let hours, minutes, index;
-    let meanConcurentSessions = {};
+    let averageConcurentSessions = {};
     for (var key in req.session.concurentSessions) {
         hours = new Date(parseInt(key)).getHours();
         minutes = new Date(parseInt(key)).getMinutes();
         index = hours + ":" + minutes;
-        if (!meanConcurentSessions[index])
-            meanConcurentSessions[index] = {
+        if (!averageConcurentSessions[index])
+            averageConcurentSessions[index] = {
                 count: 1,
-                total: req.session.concurentSessions[key],
-                max: req.session.concurentSessions[key]
+                total: req.session.concurentSessions[key].count,
+                max: req.session.concurentSessions[key].count
             }
         else {
-            meanConcurentSessions[index].count += 1;
-            meanConcurentSessions[index].total += req.session.concurentSessions[key]
-            if (req.session.concurentSessions[key] > meanConcurentSessions[index].max)
-                meanConcurentSessions[index].max = req.session.concurentSessions[key]
+            averageConcurentSessions[index].count += 1;
+            averageConcurentSessions[index].total += req.session.concurentSessions[key].count
+            if (req.session.concurentSessions[key].count > averageConcurentSessions[index].max)
+                averageConcurentSessions[index].max = req.session.concurentSessions[key].count
         }
     }
-    for (var key in meanConcurentSessions) {
-        meanConcurentSessions[key].average = meanConcurentSessions[key].total / meanConcurentSessions[key].count;
+    for (var key in averageConcurentSessions) {
+        averageConcurentSessions[key].average = averageConcurentSessions[key].total / averageConcurentSessions[key].count;
     }
-    req.session.meanConcurentSessions = meanConcurentSessions;
+    req.session.averageConcurentSessions = averageConcurentSessions;
 }
 router.get("/init", checkApi, function (req, res, next) {
     let endTime, startTime;
@@ -197,7 +200,7 @@ router.get("/init", checkApi, function (req, res, next) {
         req.session.clients = undefined;
         req.session.os = {};
         req.session.concurentSessions = {};
-        req.session.meanConcurentSessions = {};
+        req.session.averageConcurentSessions = {};
         req.session.sessionStart = startTime;
         req.session.sessionEnd = endTime;
 
@@ -220,6 +223,7 @@ router.get("/init", checkApi, function (req, res, next) {
             let clientsObject = {};
             let clients = [];
             let sessions = {};
+            let concurentSessions = {};
             if (response.length > 0) {
                 response.forEach(function (session) {
                     //console.log(session.clientId, clientsObject[session.clientId]);
@@ -247,10 +251,10 @@ router.get("/init", checkApi, function (req, res, next) {
                     if (session.connectionType == "WIRELESS") clientsObject[session.clientId].wireless = true;
                     else if (session.connectionType == "WIRED") clientsObject[session.clientId].wired = true;
                     console.log("concur");
-                    countConcurent(req, session);
+                    calculateConcurent(req, session);
                 });
                 console.log("average");
-                calculateMeanConcurent(req);
+                calculateAvergaeConcurent(req);
                 const clientsIds = Object.keys(clientsObject);
                 clientsIds.forEach(function (clientsId) {
                     clientsObject[clientsId].ip = clientsObject[clientsId].ip.join(", ");
