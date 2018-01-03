@@ -250,10 +250,8 @@ router.get("/init", checkApi, function (req, res, next) {
                     }
                     if (session.connectionType == "WIRELESS") clientsObject[session.clientId].wireless = true;
                     else if (session.connectionType == "WIRED") clientsObject[session.clientId].wired = true;
-                    console.log("concur");
                     calculateConcurent(req, session);
                 });
-                console.log("average");
                 calculateAvergaeConcurent(req);
                 const clientsIds = Object.keys(clientsObject);
                 clientsIds.forEach(function (clientsId) {
