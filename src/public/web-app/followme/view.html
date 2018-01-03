@@ -1,4 +1,4 @@
-<md-content layout="column" class="custom-scroll" flex>
+<md-content layout="column" class="custom-scroll" flex style="height: 100%">
     <style>
         .highlighted {
             background: #FFE082;
@@ -78,10 +78,6 @@
                             Validate
                             <md-icon md-svg-src="/images/icons/ic_done_24px.svg" style="margin: auto 5px" aria-label="refresh"></md-icon>
                         </md-button>
-                        <md-button style="margin: auto 0 10px" ng-click="refresh()">
-                            <span>Refresh</span>
-                            <md-icon md-svg-src="/images/icons/ic_refresh_24px.svg" style="margin: auto 5px" aria-label="refresh"></md-icon>
-                        </md-button>
                     </div>
                 </div>
 
@@ -91,7 +87,7 @@
                     <article md-whiteframe="2" flex=33>
                         <div class="chart-heading">OS</div>
                         <div class="chart-body" >
-                            <canvas id="os" class="chart chart-doughnut" chart-data="os.data" chart-labels="os.label" chart-options="os.options">
+                            <canvas id="os" class="chart chart-doughnut" chart-data="os.data" chart-labels="os.label" chart-options="os.options" chart-colors="colors">
                             </canvas>
                         </div>
                 </article>
@@ -101,7 +97,7 @@
                         <div class="chart-body">
                                 <canvas id="concurent" class="chart chart-line" chart-data="concurent.data"
                                 chart-labels="concurent.labels" chart-series="concurent.series" chart-options="concurent.options"
-                                chart-dataset-override="datasetOverride" style="height:100vh">
+                                chart-colors="colors" chart-dataset-override="concurent.datasetOverride" style="height:100vh; width: 90vw">
                         </canvas>
                         </div>
                     </article>

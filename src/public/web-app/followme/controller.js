@@ -3,8 +3,9 @@
 angular.module('Follow')
     .controller("FollowCtrl", function ($scope, $mdDialog, initService) {
         $scope.requestInit = undefined;
+        $scope.colors = [ '#97bbcd', '#4D5360', '#00ADF9', '#DCDCDC', '#46BFBD', '#FDB45C', '#949FB1'];
         $scope.os = {
-            data : [],
+            data: [],
             labels: [],
             options: {
                 legend: {
@@ -15,18 +16,22 @@ angular.module('Follow')
         }
         $scope.concurent = {
             data: [],
-            label: [],
+            labels: [],
             series: ["max", "average"],
-            scales: {
-                yAxes: [
-                  {
-                    type: 'linear',
+            datasetOverride: [
+                {
+                    type: 'line',
                     display: true,
-                    position: 'left'
-                  }
-                ]
-            }, 
+                    position: 'left',
+                    fill: false
+                },
+                {
+                    type: 'line',
+                    display: true,
+                    position: 'left',
+                }],
             options: {
+                
                 maintainAspectRatio: false
             }
         }
@@ -135,28 +140,28 @@ angular.module('Follow')
          * CHARTS
          */
 
-        function chartOs(os){
+        function chartOs(os) {
             $scope.os.data = [];
-            $scope.os.label= [];
-            
-            for (var key in os){
+            $scope.os.label = [];
+
+            for (var key in os) {
                 $scope.os.label.push(key);
                 $scope.os.data.push(os[key]);
             }
         }
 
-        function chartConcurent(sessions){
+        function chartConcurent(sessions) {
             $scope.concurent.data = [];
-            $scope.concurent.labels= [];
+            $scope.concurent.labels = [];
             let max = [];
             let average = [];
 
-            for (var key in sessions){
+            for (var key in sessions) {
                 $scope.concurent.labels.push(key);
                 max.push(sessions[key].max);
                 average.push(sessions[key].average);
             }
-            $scope.concurent.data=[max, average];
+            $scope.concurent.data = [max, average];
             console.log($scope.concurent);
         }
         /* 
@@ -172,7 +177,7 @@ angular.module('Follow')
                     clients = promise.data.clients;
                     $scope.clients = clients;
                     chartOs(promise.data.os);
-                    chartConcurent(promise.data.meanConcurentSessions);
+                    chartConcurent(promise.data.averageConcurentSessions);
                 }
             })
         }
