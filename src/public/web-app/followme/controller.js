@@ -93,7 +93,7 @@ angular.module('Follow')
         DATETIME PICKER
         */
         $scope.dateRangeEnd = new Date();
-        $scope.dateRangeStart = new Date(new Date().setHours($scope.dateRangeEnd.getHours() - 96));
+        $scope.dateRangeStart = new Date(new Date().setHours($scope.dateRangeEnd.getHours() - 12));
         $scope.endDateBeforeRender = endDateBeforeRender;
         $scope.startDateBeforeRender = startDateBeforeRender;
 

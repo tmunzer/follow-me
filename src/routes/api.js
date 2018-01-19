@@ -13,8 +13,8 @@ function checkApi(req, res, next) {
 
 function sendError(res, request, err) {
     var errStatus = 500;
-    if (response.error.status > 0 && err.status < 500) errStatus = err.status;
-    res.status(response.error.status).send({ error: err, request: request });
+    if (err.status > 0 && err.status < 500) errStatus = err.status;
+    res.status(errStatus).send({ error: err, request: request });
 }
 function sendSuccess(res, response, request) {
     res.json({ response: response, request: request });
@@ -184,7 +184,7 @@ router.get("/init", checkApi, function (req, res, next) {
         startTime = req.query.startTime;
     } else {
         endTime = new Date();
-        startTime = new Date(new Date().setHours(endTime.getHours() - 96));
+        startTime = new Date(new Date().setHours(endTime.getHours() - 12));
         endTime = endTime.toISOString();
         startTime = startTime.toISOString();
     }
