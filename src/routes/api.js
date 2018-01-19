@@ -91,7 +91,10 @@ function getClients(req, res, qsParam, cb, clientsParam, clientsCountParam) {
 
     API.monitor.clients.clients(req.session.xapi, devAccount, qs, function (response, request) {
         console.log(response.pagination);
-        if (response.error) InitDone(req, res, response.error);
+        if (response.pagination.totalCount > 10000) {
+            cb(null, response.pagination.totalCount);
+        }
+        else if (response.error) InitDone(req, res, response.error);
         else {
             for (var i = 0; i < response.data.length; i++) {
                 clients.push(response.data[i])
@@ -154,18 +157,23 @@ function calculateConcurent(req, session) {
 }
 function calculateAvergaeConcurent(req) {
     let hours, minutes, index;
+    let arrayOfIndex = [];
     let averageConcurentSessions = {};
+    let averageConcurentSessionsTmp = {};
     for (var key in req.session.concurentSessions) {
         hours = new Date(parseInt(key)).getHours();
+        if (hours < 10) hours = "0" + hours;
         minutes = new Date(parseInt(key)).getMinutes();
+        if (minutes < 10) minutes = "0" + minutes;
         index = hours + ":" + minutes;
-        if (!averageConcurentSessions[index])
+        if (!averageConcurentSessions[index]) {
+            arrayOfIndex.push(index);
             averageConcurentSessions[index] = {
                 count: 1,
                 total: req.session.concurentSessions[key].count,
                 max: req.session.concurentSessions[key].count
             }
-        else {
+        } else {
             averageConcurentSessions[index].count += 1;
             averageConcurentSessions[index].total += req.session.concurentSessions[key].count
             if (req.session.concurentSessions[key].count > averageConcurentSessions[index].max)
@@ -175,7 +183,11 @@ function calculateAvergaeConcurent(req) {
     for (var key in averageConcurentSessions) {
         averageConcurentSessions[key].average = averageConcurentSessions[key].total / averageConcurentSessions[key].count;
     }
-    req.session.averageConcurentSessions = averageConcurentSessions;
+    arrayOfIndex = arrayOfIndex.sort()
+    for (index in arrayOfIndex){
+        averageConcurentSessionsTmp[arrayOfIndex[index]] = averageConcurentSessions[arrayOfIndex[index]];
+    }
+    req.session.averageConcurentSessions = averageConcurentSessionsTmp;
 }
 router.get("/init", checkApi, function (req, res, next) {
     let endTime, startTime;
@@ -191,7 +203,8 @@ router.get("/init", checkApi, function (req, res, next) {
     qs = [
         { 'key': 'startTime', 'value': startTime },
         { 'key': 'endTime', 'value': endTime },
-        { 'key': 'page', 'value': 0 }
+        { 'key': 'page', 'value': 0 },
+        { 'pageSize': 1000 }
     ];
     if (req.session.sessionStart == startTime && req.session.sessionEnd == endTime) InitDone(req, res);
     else {
@@ -219,49 +232,53 @@ router.get("/init", checkApi, function (req, res, next) {
             }
         })
 
-        getClients(req, res, qs, function (response, request) {
-            let clientsObject = {};
-            let clients = [];
-            let sessions = {};
-            let concurentSessions = {};
-            if (response.length > 0) {
-                response.forEach(function (session) {
-                    //console.log(session.clientId, clientsObject[session.clientId]);
-                    if (clientsObject[session.clientId] != undefined) {
-                        clientsObject[session.clientId].sessions += 1;
-                        clientsObject[session.clientId].usage += session.usage;
-                        if (clientsObject[session.clientId].ip.indexOf(session.ip) < 0) clientsObject[session.clientId].ip.push(session.ip);
-                        sessions[session.clientId].push(session);
-                    } else {
-                        clientsObject[session.clientId] = {
-                            'clientId': session.clientId,
-                            'clientMac': session.clientMac,
-                            'hostName': session.hostName,
-                            'usage': session.usage,
-                            'ip': [session.ip],
-                            'os': session.os,
-                            'sessions': 1,
-                            'wireless': false,
-                            'wired': false
+        getClients(req, res, qs, function (response, totalCount) {
+            if (response == null)
+                InitDone(req, res, { status: 200, message: "Warning, there is more than 10000 sessions. Please select a shorter time range" });
+            else {
+                let clientsObject = {};
+                let clients = [];
+                let sessions = {};
+                let concurentSessions = {};
+                if (response.length > 0) {
+                    response.forEach(function (session) {
+                        //console.log(session.clientId, clientsObject[session.clientId]);
+                        if (clientsObject[session.clientId] != undefined) {
+                            clientsObject[session.clientId].sessions += 1;
+                            clientsObject[session.clientId].usage += session.usage;
+                            if (clientsObject[session.clientId].ip.indexOf(session.ip) < 0) clientsObject[session.clientId].ip.push(session.ip);
+                            sessions[session.clientId].push(session);
+                        } else {
+                            clientsObject[session.clientId] = {
+                                'clientId': session.clientId,
+                                'clientMac': session.clientMac,
+                                'hostName': session.hostName,
+                                'usage': session.usage,
+                                'ip': [session.ip],
+                                'os': session.os,
+                                'sessions': 1,
+                                'wireless': false,
+                                'wired': false
+                            }
+                            sessions[session.clientId] = [session];
+                            if (req.session.os[session.os]) req.session.os[session.os] += 1;
+                            else req.session.os[session.os] = 1
                         }
-                        sessions[session.clientId] = [session];
-                        if (req.session.os[session.os]) req.session.os[session.os] += 1;
-                        else req.session.os[session.os] = 1
-                    }
-                    if (session.connectionType == "WIRELESS") clientsObject[session.clientId].wireless = true;
-                    else if (session.connectionType == "WIRED") clientsObject[session.clientId].wired = true;
-                    calculateConcurent(req, session);
-                });
-                calculateAvergaeConcurent(req);
-                const clientsIds = Object.keys(clientsObject);
-                clientsIds.forEach(function (clientsId) {
-                    clientsObject[clientsId].ip = clientsObject[clientsId].ip.join(", ");
-                    clients.push(clientsObject[clientsId]);
-                });
+                        if (session.connectionType == "WIRELESS") clientsObject[session.clientId].wireless = true;
+                        else if (session.connectionType == "WIRED") clientsObject[session.clientId].wired = true;
+                        calculateConcurent(req, session);
+                    });
+                    calculateAvergaeConcurent(req);
+                    const clientsIds = Object.keys(clientsObject);
+                    clientsIds.forEach(function (clientsId) {
+                        clientsObject[clientsId].ip = clientsObject[clientsId].ip.join(", ");
+                        clients.push(clientsObject[clientsId]);
+                    });
+                }
+                req.session.clients = clients;
+                req.session.sessions = sessions;
+                InitDone(req, res);
             }
-            req.session.clients = clients;
-            req.session.sessions = sessions;
-            InitDone(req, res);
         });
     }
 })
