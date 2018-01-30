@@ -3,9 +3,9 @@
 angular.module('Follow')
     .controller("FollowCtrl", function ($scope, $mdDialog, initService) {
         $scope.requestInit = undefined;
-        $scope.colors = [ '#97bbcd', '#4D5360', '#00ADF9', '#DCDCDC', '#46BFBD', '#FDB45C', '#949FB1'];
+        $scope.colors = ['#97bbcd', '#4D5360', '#00ADF9', '#DCDCDC', '#46BFBD', '#FDB45C', '#949FB1'];
         $scope.os = {
-            loading : true,
+            loading: true,
             data: [],
             labels: [],
             options: {
@@ -16,7 +16,7 @@ angular.module('Follow')
             }
         }
         $scope.concurent = {
-            loading : true,
+            loading: true,
             data: [],
             labels: [],
             series: ["max", "average"],
@@ -33,7 +33,7 @@ angular.module('Follow')
                     position: 'left',
                 }],
             options: {
-                
+
                 maintainAspectRatio: false
             }
         }
@@ -93,16 +93,16 @@ angular.module('Follow')
         DATETIME PICKER
         */
         $scope.dateRangeEnd = new Date();
-        $scope.dateRangeStart = new Date(new Date().setHours($scope.dateRangeEnd.getHours() - 12));
         $scope.endDateBeforeRender = endDateBeforeRender;
+        $scope.dateRangeStart = new Date(new Date().setHours($scope.dateRangeEnd.getHours() - 12));
         $scope.startDateBeforeRender = startDateBeforeRender;
 
         function startDateBeforeRender($dates) {
             if ($scope.dateRangeEnd) {
-                var activeDate = moment($scope.dateRangeEnd);
+                var max = moment($scope.dateRangeEnd).valueOf();
 
                 $dates.filter(function (date) {
-                    return date.localDateValue() >= activeDate.valueOf()
+                    return date.localDateValue() > max
                 }).forEach(function (date) {
                     date.selectable = false;
                 })
@@ -111,20 +111,16 @@ angular.module('Follow')
 
         function endDateBeforeRender($view, $dates) {
             if ($scope.dateRangeStart) {
-                var activeDate = moment($scope.dateRangeStart).subtract(1, $view).add(1, 'minute');
-                $dates.filter(function (date) {
-                    return date.localDateValue() <= activeDate.valueOf()
-                }).forEach(function (date) {
-                    date.selectable = false;
-                })
+                var max = moment().valueOf()
+                var min = moment($scope.dateRangeStart).valueOf();
 
+                $dates.filter(function (date) {
+                  return date.localDateValue() > max || date.localDateValue < min
+                }).forEach(function (date) {
+                  date.selectable = false;
+                })
             }
-            activeDate = moment(new Date()).add(1, 'minute');
-            $dates.filter(function (date) {
-                return date.localDateValue() > activeDate.valueOf()
-            }).forEach(function (date) {
-                date.selectable = false;
-            })
+
         }
 
         $scope.clientInfo = clientInfo;
@@ -173,8 +169,8 @@ angular.module('Follow')
         $scope.refresh = refresh;
         function refresh() {
             if ($scope.requestInit) $scope.requestInit.abort();
-            $scope.os.loading=true;
-            $scope.concurent.loading=true;
+            $scope.os.loading = true;
+            $scope.concurent.loading = true;
             $scope.requestInit = initService($scope.dateRangeStart, $scope.dateRangeEnd);
             $scope.requestInit.then(function (promise) {
                 if (promise && promise.error) console.log("ERR", promise.error)
